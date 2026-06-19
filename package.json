@@ -1,0 +1,40 @@
+{
+  "name": "viraladda",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client/*",
+    "server",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:server": "npm --workspace @viraladda/server run dev",
+    "dev:backend": "npm --workspace @viraladda/server run dev",
+    "dev:admin": "npm --workspace client/admin-panel run dev",
+    "dev:mobile": "npm --workspace client/mobile-app run start",
+    "build": "npm --workspaces --if-present run build",
+    "lint": "npm --workspaces --if-present run lint",
+    "typecheck": "npm --workspaces --if-present run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "~18.3.12",
+    "@types/react-dom": "~18.3.1"
+  }
+}

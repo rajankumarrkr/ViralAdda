@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@server/*": [
+        "server/src/*"
+      ],
+      "@mobile/*": [
+        "client/mobile-app/src/*"
+      ],
+      "@admin/*": [
+        "client/admin-panel/src/*"
+      ],
+      "@viraladda/constants": [
+        "packages/constants/src/index.ts"
+      ],
+      "@viraladda/shared-types": [
+        "packages/shared-types/src/index.ts"
+      ],
+      "@viraladda/shared-utils": [
+        "packages/shared-utils/src/index.ts"
+      ]
+    }
+  },
+  "extends": "expo/tsconfig.base"
+}
