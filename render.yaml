@@ -2,13 +2,20 @@ services:
   - type: web
     name: viraladda-server
     runtime: node
-    # Build from monorepo root so npm workspaces resolve shared packages
-    buildCommand: npm install && npm run build:server
+    # Monorepo root — keeps npm workspaces intact for shared packages
+    buildCommand: >
+      npm install &&
+      npm run build:server &&
+      node -e "const fs=require('fs');if(!fs.existsSync('server/dist/server.js')){console.error('DEPLOY ABORTED: server/dist/server.js not found');process.exit(1);}console.log('Build verification passed: server/dist/server.js exists');"
     startCommand: npm run start:server
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      # Add secrets in the Render dashboard (not here):
-      # MONGO_URI, JWT_SECRET, JWT_REFRESH_SECRET, TELEGRAM_BOT_TOKEN, etc.
+      # Set these secrets in the Render dashboard (Environment tab):
+      # MONGO_URI
+      # JWT_SECRET
+      # JWT_REFRESH_SECRET
+      # TELEGRAM_BOT_TOKEN
+      # TELEGRAM_CHANNEL_ID
