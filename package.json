@@ -15,6 +15,7 @@
     "dev:mobile": "npm --workspace client/mobile-app run start",
     "build": "npm --workspaces --if-present run build",
     "build:server": "npm --workspace @viraladda/server run build",
+    "start": "node server/dist/server.js",
     "start:server": "node server/dist/server.js",
     "lint": "npm --workspaces --if-present run lint",
     "typecheck": "npm --workspaces --if-present run typecheck",
