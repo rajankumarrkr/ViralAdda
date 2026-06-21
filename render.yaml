@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: viraladda-server
+    runtime: node
+    # Build from monorepo root so npm workspaces resolve shared packages
+    buildCommand: npm install && npm run build:server
+    startCommand: npm run start:server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Add secrets in the Render dashboard (not here):
+      # MONGO_URI, JWT_SECRET, JWT_REFRESH_SECRET, TELEGRAM_BOT_TOKEN, etc.
