@@ -3,6 +3,7 @@ import { FlatList, RefreshControl, View, Text, StyleSheet, ScrollView, Pressable
 import { useNavigation } from '@react-navigation/native';
 import { useVideosQuery } from '../../api/videos/videosApi';
 import { useProfileQuery } from '../../api/users/usersApi';
+import { useAppSelector } from '../../hooks/redux';
 import { VideoCard } from '../../components/video/VideoCard';
 import { HeroBanner } from '../../components/video/HeroBanner';
 import { CategoryChip } from '../../components/common/CategoryChip';
@@ -16,13 +17,14 @@ const CATEGORIES = ['All', 'Trending', 'Comedy', 'Movies', 'Gaming', 'News', 'Ed
 export function HomeScreen() {
   const navigation = useNavigation<any>();
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const token = useAppSelector((state) => state.auth.accessToken);
   
   const { data, isLoading, error, refetch, isFetching } = useVideosQuery({
     sort: 'trending',
     search: selectedCategory === 'All' ? undefined : selectedCategory
   });
   
-  const { data: profile } = useProfileQuery();
+  const { data: profile } = useProfileQuery(undefined, { skip: !token });
 
   const videos = data?.data ?? [];
   const featuredVideo = videos[0];

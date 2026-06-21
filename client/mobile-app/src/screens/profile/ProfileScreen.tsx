@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Image, Platform, Dimensions, SafeAreaView, Alert, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileQuery, useWatchHistoryQuery, useLikedVideosQuery } from '../../api/users/usersApi';
-import { useAppDispatch } from '../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logout } from '../../redux/authSlice';
 import { tokenStorage } from '../../services/storage';
 import { ScreenState } from '../../components/common/ScreenState';
 import { ProfileHeader } from '../../components/profile/ProfileHeader';
 import { theme } from '../../theme/theme';
-import { Film, Heart, Grid, LogOut, Settings, Play } from 'lucide-react-native';
+import { Film, Heart, Grid, LogOut, Settings, Play, User } from 'lucide-react-native';
+import { Button } from '../../components/common/Button';
 
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = width / 3;
@@ -19,14 +20,55 @@ export function ProfileScreen() {
   
   const [activeTab, setActiveTab] = useState<'history' | 'liked'>('history');
 
-  const { data: profile, isLoading: isProfileLoading, error: profileError } = useProfileQuery();
-  const { data: history, isLoading: isHistoryLoading, refetch: refetchHistory } = useWatchHistoryQuery();
-  const { data: likedVideos, isLoading: isLikedLoading, refetch: refetchLiked } = useLikedVideosQuery();
+  const token = useAppSelector((state) => state.auth.accessToken);
+
+  const { data: profile, isLoading: isProfileLoading, error: profileError } = useProfileQuery(undefined, { skip: !token });
+  const { data: history, isLoading: isHistoryLoading, refetch: refetchHistory } = useWatchHistoryQuery(undefined, { skip: !token });
+  const { data: likedVideos, isLoading: isLikedLoading, refetch: refetchLiked } = useLikedVideosQuery(undefined, { skip: !token });
 
   const handleLogout = async () => {
     await tokenStorage.clear();
     dispatch(logout());
   };
+
+  useEffect(() => {
+    if (profileError && (profileError as any)?.status === 401) {
+      handleLogout();
+    }
+  }, [profileError]);
+
+  if (!token) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.guestContainer}>
+          <View style={styles.guestIconContainer}>
+            <View style={styles.guestIconRing}>
+              <User size={36} color={theme.colors.primary} />
+            </View>
+          </View>
+          <Text style={styles.guestTitle}>Unlock Your Profile</Text>
+          <Text style={styles.guestSubtitle}>
+            Sign in to ViralAdda to see your watch history, like your favorite videos, and build your own custom creator profile.
+          </Text>
+          
+          <View style={styles.guestButtonGroup}>
+            <Button
+              title="Sign In"
+              onPress={() => navigation.navigate('Login')}
+              variant="gradient"
+              style={styles.guestButton}
+            />
+            <Button
+              title="Create Account"
+              onPress={() => navigation.navigate('Register')}
+              variant="outline"
+              style={styles.guestButton}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
   const handleSettingsPress = () => {
     if (Platform.OS === 'web') {
       const confirmLogout = typeof global !== 'undefined' && (global as any).window ? (global as any).window.confirm('Are you sure you want to log out?') : true;
@@ -229,5 +271,49 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.xs,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  guestContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: theme.colors.background,
+  },
+  guestIconContainer: {
+    marginBottom: 24,
+  },
+  guestIconRing: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 59, 48, 0.2)',
+    ...theme.shadows.glowSubtle,
+  },
+  guestTitle: {
+    color: theme.colors.text,
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  guestSubtitle: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 300,
+    marginBottom: 32,
+  },
+  guestButtonGroup: {
+    width: '100%',
+    maxWidth: 280,
+    gap: 12,
+  },
+  guestButton: {
+    width: '100%',
   },
 });

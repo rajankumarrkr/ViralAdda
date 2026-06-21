@@ -22,14 +22,35 @@ export function RegisterScreen({ navigation }: { navigation: any }) {
       setError('Please fill in all fields');
       return;
     }
+    if (username.trim().length < 3 || username.trim().length > 32) {
+      setError('Username must be between 3 and 32 characters');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (password.length < 8 || password.length > 72) {
+      setError('Password must be between 8 and 72 characters');
+      return;
+    }
     setError('');
     try {
-      const auth = await register({ username, email, password }).unwrap();
+      const auth = await register({ username: username.trim(), email: email.trim(), password }).unwrap();
       await tokenStorage.setTokens(auth.accessToken, auth.refreshToken);
       dispatch(setCredentials(auth));
       navigation.navigate('Tabs');
     } catch (e: any) {
-      setError(e?.data?.message || 'Registration failed. Please try again.');
+      if (e?.data?.errors?.fieldErrors) {
+        const fieldErrors = e.data.errors.fieldErrors;
+        const messages = Object.keys(fieldErrors)
+          .map((field) => `${field.toUpperCase()}: ${fieldErrors[field].join(', ')}`)
+          .join('\n');
+        setError(messages);
+      } else {
+        setError(e?.data?.message || 'Registration failed. Please try again.');
+      }
     }
   };
 

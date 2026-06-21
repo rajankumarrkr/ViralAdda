@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen, ShortsScreen, UploadScreen, SearchScreen, ProfileScreen, VideoDetailScreen, LoginScreen, RegisterScreen } from '../screens';
 import { FloatingTabBar } from '../components';
-import { useAppSelector } from '../hooks/redux';
+import { useAppSelector, useAppDispatch } from '../hooks/redux';
+import { tokenStorage } from '../services/storage';
+import { setCredentials } from '../redux/authSlice';
+import { theme } from '../theme/theme';
 
 export type RootStackParamList = {
   Tabs: undefined;
@@ -30,8 +34,39 @@ function MainTabs() {
   );
 }
 
+function LoadingScreen() {
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color={theme.colors.primary} />
+    </View>
+  );
+}
+
 export function RootNavigator() {
   const token = useAppSelector((state) => state.auth.accessToken);
+  const dispatch = useAppDispatch();
+  const [isRestoring, setIsRestoring] = useState(true);
+
+  useEffect(() => {
+    const restoreToken = async () => {
+      try {
+        const storedToken = await tokenStorage.getAccessToken();
+        if (storedToken) {
+          dispatch(setCredentials({ accessToken: storedToken }));
+        }
+      } catch (e) {
+        console.error('Failed to restore token', e);
+      } finally {
+        setIsRestoring(false);
+      }
+    };
+    restoreToken();
+  }, [dispatch]);
+
+  if (isRestoring) {
+    return <LoadingScreen />;
+  }
+
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
@@ -45,4 +80,5 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
 
