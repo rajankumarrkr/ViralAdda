@@ -9,6 +9,6 @@
     "typecheck": "echo 'No typecheck'"
   },
   "dependencies": {
-    "@viraladda/constants": "0.1.0"
+    "@viraladda/constants": "file:../constants"
   }
 }
